@@ -39,6 +39,7 @@ class HermesAdapter:
         context: Dict[str, Any],
         model_config: Optional[ModelConfig] = None,
         history: Optional[List[Dict[str, Any]]] = None,
+        session_id: Optional[str] = None,
     ) -> None:
         """
         Run the Hermes agent in a background thread.
@@ -47,6 +48,7 @@ class HermesAdapter:
         self._current_agent_id = agent_def.id
         self._full_content = ""
         self._stop_event.clear()
+        self._session_id = session_id
         
         thread = threading.Thread(
             target=self._run_agent,
@@ -66,28 +68,11 @@ class HermesAdapter:
         """Internal method that runs in a thread."""
         try:
             from run_agent import AIAgent
-            from tools.skills_tool import skill_view
             
-            # Build system prompt with skills
+            # Build system prompt — skills are NOT preloaded into prompt
+            # Agent uses skill_view tool on-demand (Hermes native behavior)
             system_prompt = agent_def.persona
-            
-            # Preload skills if specified
-            if agent_def.skills:
-                skill_contents = []
-                for skill_name in agent_def.skills:
-                    try:
-                        result = json.loads(skill_view(skill_name))
-                        if result.get("success"):
-                            skill_contents.append(f"\n\n## Skill: {skill_name}\n\n{result.get('content', '')}")
-                            logger.info(f"Loaded skill: {skill_name}")
-                        else:
-                            logger.warning(f"Failed to load skill {skill_name}: {result.get('error')}")
-                    except Exception as e:
-                        logger.warning(f"Error loading skill {skill_name}: {e}")
                 
-                if skill_contents:
-                    system_prompt = system_prompt + "\n\n# Preloaded Skills\n" + "\n".join(skill_contents)
-            
             # Add context to system prompt
             if context:
                 context_str = json.dumps(context, ensure_ascii=False, indent=2)
@@ -115,6 +100,8 @@ class HermesAdapter:
                 model=model,
                 provider=provider,
                 api_key=api_key,
+                max_iterations=6,
+                session_id=self._session_id,
                 ephemeral_system_prompt=system_prompt,
                 prefill_messages=messages if messages else None,
                 stream_delta_callback=self._on_stream_delta,
@@ -124,7 +111,7 @@ class HermesAdapter:
                 tool_gen_callback=self._on_tool_gen,
                 thinking_callback=self._on_thinking,
                 status_callback=self._on_status,
-                # Enable skills tools
+                # Always enable tools for data query + analysis
                 enabled_toolsets=["skills", "web", "terminal"],
             )
             
