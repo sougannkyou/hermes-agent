@@ -95,13 +95,15 @@ class HermesAdapter:
             
             # Determine model and provider
             # Default to MiniMax provider with MiniMax-Text-01 model
-            model = "MiniMax-M2.7"
+            model = "MiniMax-M2.7-highspeed"
             provider = "minimax"
             api_key = None
             if model_config:
                 model = model_config.name or model
                 provider = model_config.provider or provider
                 api_key = model_config.api_key
+            
+            logger.info(f"Agent config: model={model}, provider={provider}, has_api_key={bool(api_key)}, model_config={model_config}")
             
             # Build prefill messages (history only, current message is passed to chat())
             messages = []

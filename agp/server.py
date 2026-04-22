@@ -67,8 +67,8 @@ class AgentDefinitionModel(BaseModel):
 
 
 class ModelConfigModel(BaseModel):
-    provider: str = "anthropic"
-    name: str = "claude-sonnet-4-20250514"
+    provider: str = ""
+    name: str = ""
     api_key: Optional[str] = None
     temperature: float = 0.7
     max_tokens: int = 8192

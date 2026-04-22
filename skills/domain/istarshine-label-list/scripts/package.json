@@ -1,0 +1,10 @@
+{
+  "name": "istarshine-label-list-cli",
+  "version": "0.21.2",
+  "description": "CLI proxy for istarshine label list API",
+  "main": "cli.js",
+  "bin": { "istarshine-label-list": "./cli.js" },
+  "engines": { "node": ">=16.0.0" },
+  "license": "UNLICENSED",
+  "private": true
+}

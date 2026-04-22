@@ -1,0 +1,17 @@
+{
+  "name": "istarshine-normalize-url-cli",
+  "version": "0.21.2",
+  "description": "CLI proxy for istarshine URL normalization API",
+  "main": "cli.js",
+  "bin": {
+    "istarshine-normalize-url": "./cli.js"
+  },
+  "scripts": {
+    "start": "node cli.js"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "license": "UNLICENSED",
+  "private": true
+}
